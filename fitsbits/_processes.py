@@ -285,7 +285,7 @@ def run_safe(infile,
         for f in infile_list:
 
             lock_file = os.path.join(os.path.dirname(f),
-                                     '%s.pipetrex-lock' % os.path.basename(f))
+                                     '%s.lock' % os.path.basename(f))
             flock = filelock.FileLock(lock_file)
             flock.acquire(timeout=timeout)
 

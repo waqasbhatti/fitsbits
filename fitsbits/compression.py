@@ -94,7 +94,7 @@ def safe_compress(infile,
     '''
 
     lock_file = os.path.join(os.path.dirname(infile),
-                             '%s.fitsbits-lock' % os.path.basename(infile))
+                             '%s.lock' % os.path.basename(infile))
     if compression == 'gzip':
         outfile = os.path.join(os.path.dirname(infile),
                                '%s.gz' % os.path.basename(infile))
@@ -209,7 +209,7 @@ def safe_uncompress(infile,
     '''
 
     lock_file = os.path.join(os.path.dirname(infile),
-                             '%s.fitsbits-lock' % os.path.basename(infile))
+                             '%s.lock' % os.path.basename(infile))
 
     if infile.endswith('.gz'):
         outfile = os.path.join(os.path.dirname(infile),
@@ -409,7 +409,7 @@ def with_safe_compression(
 
                     lock_file = os.path.join(
                         os.path.dirname(lf),
-                        '%s.fitsbits-lock' % os.path.basename(lf)
+                        '%s.lock' % os.path.basename(lf)
                     )
                     flock = filelock.FileLock(lock_file)
                     flock.acquire(timeout=lock_timeout)
@@ -471,7 +471,7 @@ def with_safe_compression(
 
                 lock_file = os.path.join(
                     os.path.dirname(f),
-                    '%s.fitsbits-lock' % os.path.basename(f)
+                    '%s.lock' % os.path.basename(f)
                 )
                 flock = filelock.FileLock(lock_file)
                 flock.acquire(timeout=lock_timeout)
@@ -533,7 +533,7 @@ def with_safe_compression(
 
             lock_file = os.path.join(
                 os.path.dirname(f),
-                '%s.fitsbits-lock' % os.path.basename(f)
+                '%s.lock' % os.path.basename(f)
             )
             flock = filelock.FileLock(lock_file)
             flock.acquire(timeout=lock_timeout)
@@ -616,7 +616,7 @@ def with_safe_compression(
 
             lock_file = os.path.join(
                 os.path.dirname(outfile),
-                '%s.fitsbits-lock' % os.path.basename(outfile)
+                '%s.lock' % os.path.basename(outfile)
             )
             flock = filelock.FileLock(lock_file)
             flock.acquire(timeout=lock_timeout)
