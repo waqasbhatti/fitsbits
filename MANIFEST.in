@@ -1,0 +1,13 @@
+include versioneer.py
+include fitsbits/_version.py
+
+include LICENSE
+include README.md
+include requirements.txt
+
+include fitsbits/DejaVuSans.ttf
+
+global-exclude *.pkl
+global-exclude *.pyc
+global-exclude .DS_Store
+global-exclude *.map
