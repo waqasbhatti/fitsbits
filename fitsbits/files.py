@@ -682,7 +682,7 @@ def get_image_types(fitsdir,
         This returns a dict with the images sorted by image type (and further by
         the provided file patterns in `sort_by_file_pattern` if that's not
         None). Also saves the results in the `fitsdir` as a pickle
-        called ``pipetrex-imagetypes.pkl``.
+        called ``fitsbits-imagetypes.pkl``.
 
     '''
 
@@ -708,7 +708,7 @@ def get_image_types(fitsdir,
     )
 
     outpicklepath = os.path.join(os.path.abspath(fitsdir),
-                                 'pipetrex-imagetypes.pkl')
+                                 'fitsbits-imagetypes.pkl')
     outpicklef = open(outpicklepath,'wb')
 
     outpickledict = {'unknown_bad':[]}
@@ -830,7 +830,7 @@ def get_observed_objects(fitsdir,
         This returns a dict with the images sorted by observed object (and
         further by the provided file patterns in `sort_by_file_pattern` if
         that's not None). Also saves the results in the `fitsdir` as a pickle
-        called ``pipetrex-observedobjects.pkl``.
+        called ``fitsbits-observedobjects.pkl``.
 
     '''
 
@@ -860,7 +860,7 @@ def get_observed_objects(fitsdir,
     all_imageobjects = set(all_imageobjects)
 
     outpicklepath = os.path.join(os.path.abspath(fitsdir),
-                                 'pipetrex-observedobjects.pkl')
+                                 'fitsbits-observedobjects.pkl')
     outpicklef = open(outpicklepath,'wb')
 
     outpickledict = {}
@@ -931,7 +931,7 @@ def group_frames_by_pointing(
 
     outfile : str or None
         The output pickle to write the group info to. If None, this is
-        'pipetrex-pointing-groups.pkl' in the current working directory.
+        'fitsbits-pointing-groups.pkl' in the current working directory.
 
     max_radius_deg : float
         The maximum radius to consider when generating groups.
@@ -1100,7 +1100,7 @@ def group_frames_by_pointing(
     }
 
     if not outfile:
-        outfile = 'pipetrex-pointing-groups.pkl'
+        outfile = 'fitsbits-pointing-groups.pkl'
 
     with open(outfile, 'wb') as outfd:
         pickle.dump(groups, outfd, pickle.HIGHEST_PROTOCOL)

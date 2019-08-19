@@ -3,7 +3,7 @@
 
 '''This is a script to extract FITS headers and specific header keys.
 
-usage: pipetrex-fitshdr [-h] [-f] [-x EXT] [-k KEYS] [-e REGEX] [-l] fitsfile
+usage: fitsbits-header [-h] [-f] [-x EXT] [-k KEYS] [-e REGEX] [-l] fitsfile
 
 Print the headers of a FITS file, or pull out specific header keys.
 

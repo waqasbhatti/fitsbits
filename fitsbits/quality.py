@@ -345,6 +345,7 @@ def frame_source_info(
         fits_declcenter_unit='deg',
         fits_background_mediandiffbelow=0.0,
         fits_background_tilesize=128,
+        # these are used by HAT Survey instruments
         fits_environ_keys=(
             'Z',
             'MOONDIST',
@@ -367,6 +368,7 @@ def frame_source_info(
             'IHUALT',
             'IHUFOC',
         ),
+        # these are also used by HAT Survey instruments
         fits_extra_keys=(
             'CMSERIAL',
             'EXPTIME',
@@ -402,7 +404,7 @@ def frame_source_info(
             'MIDTIME',
             'PTVER',
             'HATP_SVN',
-            # these are added by PIPE-TrEx at various stages
+            # these are added by HATPI's PIPE-TrEx pipeline at various stages
             'PIPETREX',
             'MSTRBIAS',
             'MSTRDARK',
@@ -421,6 +423,9 @@ def frame_source_info(
             'NCOMBINE',
             'COMBNTYP',
             'MEDNTEMP',
+            # these are added by FITSbits
+            'FITSBITS',
+            'PROCDT',
         ),
         extra_info_dict=None,
         writepickle=False,
@@ -498,9 +503,7 @@ def frame_source_info(
 
     extra_info_dict : dict or None
         An arbitrary dict of information to be added to the output dict and
-        pickle. For example, we use this in
-        :py:mod:`~pipetrex.imagesub.imagesubphot` to store photometric aperture
-        information, etc.
+        pickle.
 
     writepickle : bool, default: False
         Sets if a pickle should be created alongside the FITS file containing
