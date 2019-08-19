@@ -1,3 +1,3 @@
-# v0.1.0 - not released yet
+# v0.1.0
 
 Initial version.
