@@ -42,7 +42,7 @@ import shutil
 
 import filelock
 
-from .processes import run_shell
+from ._processes import run_shell
 
 
 ########################

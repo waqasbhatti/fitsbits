@@ -53,7 +53,7 @@ else:
 import numpy as np
 import numpy.ma as npma
 
-from astrobase.coordutils import hms_str_to_decimal, dms_str_to_decimal
+from ._coordutils import hms_str_to_decimal, dms_str_to_decimal
 
 from .operations import (
     read_fits,
