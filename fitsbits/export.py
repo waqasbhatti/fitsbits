@@ -36,6 +36,7 @@ LOGEXCEPTION = LOGGER.exception
 ## IMPORTS ##
 #############
 
+import os
 import os.path
 import subprocess
 
@@ -581,18 +582,23 @@ def parallel_jpeg_worker(task):
     '''
 
     try:
-        return task[0], fits_to_full_jpeg(task[0], **task[1])
+        return fits_to_full_jpeg(task[0], **task[1])
     except Exception:
         LOGEXCEPTION('failed to make JPEG for %s' % (task[0],))
-        return task[0], None
+        return None
 
 
 def parallel_frame_jpegs(
-        fitsdir,
+        infits,
         fitsglob='*.fits',
+        outf_dir=None,
+        outf_extension='jpg',
+        outf_postfix=None,
         ext=None,
         trim=True,
         trimkeys=('TRIMSEC','DATASEC','TRIMSEC0'),
+        scale_func=operations.clipped_linscale_img,
+        scale_func_params=None,
         flip=True,
         resize=False,
         resizefrac=None,
@@ -616,11 +622,43 @@ def parallel_frame_jpegs(
     # initialize the pool of workers
     pool = mp.Pool(nworkers, maxtasksperchild=maxworkertasks)
 
-    fitslist = sorted(glob.glob(os.path.join(os.path.abspath(fitsdir),
-                                             fitsglob)))
+    if isinstance(infits,str):
+        fitslist = sorted(glob.glob(os.path.join(os.path.abspath(infits),
+                                                 fitsglob)))
+
+    elif isinstance(infits, list):
+        fitslist = infits
+
+    if outf_postfix is None:
+        outf_postfix = ''
+    else:
+        outf_postfix = '-%s' % outf_postfix
+
+    out_flist = ['%s%s.%s' % (clean_fname(x),
+                              outf_postfix,
+                              outf_extension) for x in fitslist]
+
+    if outf_dir is not None:
+
+        if not os.path.exists(outf_dir):
+            os.makedirs(outf_dir)
+
+        out_flist = [os.path.join(outf_dir, x) for x in out_flist]
+
+    # only make JPEGs that don't yet exist
+    work_on_flist = []
+    work_on_outlist = []
+    for f, o in zip(fitslist, out_flist):
+        if not os.path.exists(o):
+            work_on_flist.append(f)
+            work_on_outlist.append(o)
+
     tasks = [
         (x,{'ext':ext,
+            'out_fname':y,
             'trim':trim,
+            'scale_func':scale_func,
+            'scale_func_params':scale_func_params,
             'trimkeys':trimkeys,
             'resize':resize,
             'flip':flip,
@@ -635,18 +673,17 @@ def parallel_frame_jpegs(
             'fits_jdsrc':fits_jdsrc,
             'fits_jdkey':fits_jdkey,
             'frame_time':frame_time})
-        for x in fitslist
+        for x,y in zip(work_on_flist, work_on_outlist)
     ]
 
     # fire up the pool of workers
-    results = pool.map(parallel_jpeg_worker, tasks)
+    pool.map(parallel_jpeg_worker, tasks)
 
     # wait for the processes to complete work
     pool.close()
     pool.join()
 
-    resultdict = {x:y for (x,y) in results}
-
+    resultdict = {x:y for x,y in zip(fitslist, out_flist) if os.path.exists(y)}
     return resultdict
 
 
@@ -1130,10 +1167,10 @@ def make_frame_movie(imgdir,
                                 preset=preset)
 
     proc = subprocess.run(cmdtorun, shell=True)
-    LOGINFO('ffmpeg done. Return code was %s' % proc.returncode)
+    LOGINFO('FFmpeg done. Return code was %s.' % proc.returncode)
 
     # check if we succeeded in making the output file
-    if os.path.exists(outfile):
+    if os.path.exists(outfile) and proc.returncode == 0:
         LOGINFO('Frame movie successfully created: %s' % outfile)
         return os.path.abspath(outfile)
 
@@ -1141,4 +1178,82 @@ def make_frame_movie(imgdir,
 
         LOGERROR('Could not make frame movie for files in '
                  'directory: %s, using fileglob: %s' % (imgdir, fileglob))
+        return None
+
+
+def make_frame_movie_from_list(filelist,
+                               outfile,
+                               framerate=15,
+                               crf=17,
+                               ffmpeg_exe='ffmpeg',
+                               rescale_to_width=1024,
+                               preset='slower',
+                               fileglob='*.jpg'):
+    '''This makes frame movies for all frame jpegs/pngs in the given list.
+
+    Use ffmpeg_exe to set the path to the ffmpeg executable.
+
+    crf sets the visual quality of the frames:
+
+    - crf = 0  -> lossless encoding
+    - crf = 17 -> visually lossless
+    - crf = 51 -> maximum compression
+
+    Use preset to set the compression quality of the encoding:
+
+    'veryslow' -> slowest encoding but smallest MP4 movie files
+    'slow'
+    'fast'
+    'veryfast' -> fastest encoding but largest MP4 movie files
+
+    The framerate also affects the file size.
+
+    To encode faster and make smaller movies, resize the input jpegs to smaller
+    sizes, e.g. by using the resize=True and resizefrac=<1.0 kwargs to
+    parallel_frame_jpegs.
+
+    '''
+
+    # rescale the movie frames if told to do so
+    if rescale_to_width is not None and rescale_to_width > 0:
+        rescale_opt = '-filter:v scale="%s:trunc(ow/a/2)*2" ' % rescale_to_width
+    else:
+        rescale_opt = ''
+
+    # generate the cat command
+    catcommand = "cat %s" % ' '.join(filelist)
+
+    # FFMPEG commandline
+    FFMPEGCMD = (
+        "{catcommand} | {ffmpeg} "
+        "-y "
+        "-f image2pipe "
+        "-i - "
+        "-framerate {framerate} "
+        "-an -c:v libx264 "
+        "-crf {crf} -preset {preset} "
+        "-pix_fmt yuv420p "
+        "{rescale_opt}"
+        "-movflags faststart {outfile}"
+    )
+
+    cmdtorun = FFMPEGCMD.format(ffmpeg=ffmpeg_exe,
+                                catcommand=catcommand,
+                                framerate=framerate,
+                                rescale_opt=rescale_opt,
+                                outfile=outfile,
+                                crf=crf,
+                                preset=preset)
+
+    proc = subprocess.run(cmdtorun, shell=True)
+    LOGINFO('FFmpeg done. Return code was %s.' % proc.returncode)
+
+    # check if we succeeded in making the output file
+    if os.path.exists(outfile) and proc.returncode == 0:
+        LOGINFO('Frame movie successfully created: %s' % outfile)
+        return os.path.abspath(outfile)
+
+    else:
+
+        LOGERROR('Could not make frame movie for files in the input list.')
         return None

@@ -93,6 +93,7 @@ setup(
         'console_scripts':[
             'fitsbits-header=fitsbits.fitshdr:main',
             'fitsbits-export=fitsbits.fits2export:main',
+            'fitsbits-movie=fitsbits.fits2mp4:main',
         ],
     },
     include_package_data=True,

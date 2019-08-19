@@ -331,7 +331,7 @@ def main():
         help=("If this is set, the input FITS will be trimmed using "
               "any of the provided trim keys from the FITS header. "
               "Separate these with a comma. "
-              "The default is 'TRIMSEC,DATASEC',TRIMSEC0'")
+              "The default is 'TRIMSEC,DATASEC,TRIMSEC0'")
     )
     export_to_raster.add_argument(
         '-s','--scale',
@@ -388,7 +388,7 @@ def main():
         help=("If this is set, the input FITS will be trimmed using "
               "any of the provided trim keys from the FITS header. "
               "Separate these with a comma. "
-              "The default is 'TRIMSEC,DATASEC',TRIMSEC0'")
+              "The default is 'TRIMSEC,DATASEC,TRIMSEC0'")
     )
     export_to_stamps.add_argument(
         '-s','--scale',
@@ -444,7 +444,7 @@ def main():
         help=("If this is set, the input FITS will be trimmed using "
               "any of the provided trim keys from the FITS header. "
               "Separate these with a comma. "
-              "The default is 'TRIMSEC,DATASEC',TRIMSEC0'")
+              "The default is 'TRIMSEC,DATASEC,TRIMSEC0'")
     )
     export_to_radecbox.add_argument(
         '-s','--scale',
@@ -521,7 +521,7 @@ def main():
         help=("If this is set, the input FITS will be trimmed using "
               "any of the provided trim keys from the FITS header. "
               "Separate these with a comma. "
-              "The default is 'TRIMSEC,DATASEC',TRIMSEC0'")
+              "The default is 'TRIMSEC,DATASEC,TRIMSEC0'")
     )
     export_to_xybox.add_argument(
         '-s','--scale',
@@ -560,3 +560,7 @@ def main():
     # dispatch the function
     #
     args.func(args)
+
+
+if __name__ == '__main__':
+    main()
