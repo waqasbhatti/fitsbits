@@ -92,6 +92,7 @@ setup(
     entry_points={
         'console_scripts':[
             'fitsbits-header=fitsbits.fitshdr:main',
+            'fitsbits-export=fitsbits.fits2export:main',
         ],
     },
     include_package_data=True,

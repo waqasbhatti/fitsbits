@@ -27,12 +27,13 @@ This package requires Python >= 3.5.
 - [**files.py**](https://github.com/waqasbhatti/fitsbits/blob/master/fitsbits/files.py):
   contains functions to work on collections of FITS files.
 
-- [**fits2jpeg.py**](https://github.com/waqasbhatti/fitsbits/blob/master/fitsbits/fits2jpeg.py):
-  command-line utility available as `fitsbits-fits2jpeg` when this package is
-  installed; converts a FITS image to a JPEG.
+- [**fits2export.py**](https://github.com/waqasbhatti/fitsbits/blob/master/fitsbits/fits2jpeg.py):
+  command-line utility available as `fitsbits-export` when this package is
+  installed; exports a FITS image to a full JPEG or PNG, stamp PNG, or
+  JPEGs/PNGs of specified regions (RA/Dec or x/y coordinate boxes).
 
 - [**fits2mp4.py**](https://github.com/waqasbhatti/fitsbits/blob/master/fitsbits/fits2mp4.py):
-  command-line utility available as `fitsbits-fits2mp4` when this package is
+  command-line utility available as `fitsbits-movie` when this package is
   installed; converts a series of FITS images to a MP4 movie.
 
 - [**fitshdr.py**](https://github.com/waqasbhatti/fitsbits/blob/master/fitsbits/fitshdr.py):

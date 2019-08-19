@@ -736,6 +736,22 @@ def mask_image(fits_img,
 ## SCALING IMAGES ##
 ####################
 
+def direct_linscale_img(img_array,
+                        low,
+                        high,
+                        cap=255.0):
+    '''
+    This clips the image between the directly specified values low and high.
+
+    '''
+
+    img_med = np.nanmedian(img_array)
+    clipped_linear_img = np.clip(img_array,
+                                 img_med - low,
+                                 img_med + high)
+    return cap*clipped_linear_img/(img_med + high)
+
+
 def clipped_linscale_img(img_array,
                          losig=2.0,
                          hisig=2.5,
@@ -743,7 +759,7 @@ def clipped_linscale_img(img_array,
     '''
     This clips the image between the values:
 
-    [median(img_array) - lo, median(img_array) + hi]
+    [median(img_array) - losig*img_stdev, median(img_array) + hisig*img_stdev]
 
     and returns a linearly scaled image using the cap given.
 
@@ -760,8 +776,8 @@ def clipped_linscale_img(img_array,
 
 def clipped_logscale_img(img_array,
                          cap=255.0,
-                         lomult=2.0,
-                         himult=2.0,
+                         lomult=1.0,
+                         himult=2.5,
                          coeff=1000.0):
     '''
     This clips the image between the values:
@@ -802,4 +818,4 @@ def zscale_image(imgarr):
 
     zscaler = ZScaleInterval()
     scaled_vals = zscaler.get_limits(imgarr)
-    return clipped_linscale_img(imgarr, scaled_vals[0], scaled_vals[1])
+    return direct_linscale_img(imgarr, scaled_vals[0], scaled_vals[1])
