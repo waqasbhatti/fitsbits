@@ -14,28 +14,37 @@ This package requires Python >= 3.5.
 
 # Contents
 
-- compression.py: contains functions to perform safe and atomic compression and
-  decompression of FITS files.
+- [**compression.py**](https://github.com/waqasbhatti/fitsbits/blob/master/fitsbits/compression.py):
+  contains functions to perform safe and atomic compression and decompression of
+  FITS files in gzip and fpack formats. Requires the GNU gzip and CFITSIO
+  fpack/funpack utilities.
 
-- export.py: contains functions to export FITS images as JPEGs, generating
-  stamps for FITS images and exporting these as PNGs, and turning collections of
-  FITS JPEGs into movies.
+- [**export.py**](https://github.com/waqasbhatti/fitsbits/blob/master/fitsbits/export.py):
+  contains functions to export FITS images as JPEGs, generating stamps for FITS
+  images and exporting these as PNGs, and turning collections of FITS JPEGs into
+  movies.
 
-- files.py: contains functions to work on collections of FITS files.
+- [**files.py**](https://github.com/waqasbhatti/fitsbits/blob/master/fitsbits/files.py):
+  contains functions to work on collections of FITS files.
 
-- fits2jpeg.py: command-line utility available as `fitsbits-fits2jpeg` when
-  this package is installed; converts a FITS image to a JPEG.
+- [**fits2jpeg.py**](https://github.com/waqasbhatti/fitsbits/blob/master/fitsbits/fits2jpeg.py):
+  command-line utility available as `fitsbits-fits2jpeg` when this package is
+  installed; converts a FITS image to a JPEG.
 
-- fits2mp4.py: command-line utility available as `fitsbits-fits2mp4` when
-  this package is installed; converts a series of FITS images to a MP4 movie.
+- [**fits2mp4.py**](https://github.com/waqasbhatti/fitsbits/blob/master/fitsbits/fits2mp4.py):
+  command-line utility available as `fitsbits-fits2mp4` when this package is
+  installed; converts a series of FITS images to a MP4 movie.
 
-- fitshdr.py: command-line utility available as `fitsbits-header` when
-  this package is installed; extracts and dumps a FITS file's header to stdout.
+- [**fitshdr.py**](https://github.com/waqasbhatti/fitsbits/blob/master/fitsbits/fitshdr.py):
+  command-line utility available as `fitsbits-header` when this package is
+  installed; extracts and dumps a FITS file's header to stdout.
 
-- operations.py: contains functions to perform various header and data
-  extraction operations on FITS files.
+- [**operations.py**](https://github.com/waqasbhatti/fitsbits/blob/master/fitsbits/operations.py):
+  contains functions to perform various header and data extraction operations on
+  FITS files.
 
-- quality.py: contains functions to assess the quality of FITS images.
+- [**quality.py**](https://github.com/waqasbhatti/fitsbits/blob/master/fitsbits/quality.py):
+  contains functions to assess the quality of FITS images.
 
 
 # Changelog
