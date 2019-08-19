@@ -56,7 +56,7 @@ from sklearn.cluster import DBSCAN
 
 from ._coordutils import hms_str_to_decimal, dms_str_to_decimal
 from ._modtools import object_from_string
-from .extractors import extract_frame_targetfield
+from ._extractors import extract_frame_targetfield
 from .compression import safe_compress, safe_uncompress
 
 from . import operations

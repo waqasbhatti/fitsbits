@@ -60,7 +60,7 @@ from .operations import (
     compressed_fits_ext,
     trim_image
 )
-from .extractors import clean_fname
+from ._extractors import clean_fname
 
 NCPUS = mp.cpu_count()
 

@@ -57,7 +57,7 @@ from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
 
-from .extractors import clean_fname
+from ._extractors import clean_fname
 from . import operations
 
 from astropy import wcs
