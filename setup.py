@@ -71,7 +71,7 @@ setup(
     long_description=readme(),
     long_description_content_type="text/markdown",
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'License :: OSI Approved :: MIT License',
         "Intended Audience :: Science/Research",
         "Topic :: Scientific/Engineering :: Astronomy",
@@ -91,7 +91,7 @@ setup(
     tests_require=['pytest',],
     entry_points={
         'console_scripts':[
-            'fitbits-header=fitsbits.fitshdr:main',
+            'fitsbits-header=fitsbits.fitshdr:main',
         ],
     },
     include_package_data=True,
