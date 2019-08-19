@@ -217,34 +217,38 @@ def check_frame_badwarp(
 
     if makeplot:
 
-        import matplotlib.pyplot as plt
-        fig = plt.figure(1, figsize=(6.4*2,4.8),clear=True)
-        ax1, ax2 = fig.subplots(ncols=2, nrows=1)
+        try:
+            import matplotlib.pyplot as plt
+            fig = plt.figure(1, figsize=(6.4*2,4.8),clear=True)
+            ax1, ax2 = fig.subplots(ncols=2, nrows=1)
 
-        ax1.plot(imagecoordnum, medx, 'k-')
-        ax1.plot(imagecoordnum, lin_xfit, 'r-', alpha=0.5, label='linear')
-        ax1.plot(imagecoordnum, poly_xfit, 'b-', alpha=0.5,
-                 label='polyorder %s' % xpolyorder)
-        ax1.set_xlabel('image coord number')
-        ax1.set_ylabel('x medians, linear fit, and poly fit')
+            ax1.plot(imagecoordnum, medx, 'k-')
+            ax1.plot(imagecoordnum, lin_xfit, 'r-', alpha=0.5, label='linear')
+            ax1.plot(imagecoordnum, poly_xfit, 'b-', alpha=0.5,
+                     label='polyorder %s' % xpolyorder)
+            ax1.set_xlabel('image coord number')
+            ax1.set_ylabel('x medians, linear fit, and poly fit')
 
-        ax2.plot(imagecoordnum, medy, 'k-')
-        ax2.plot(imagecoordnum, lin_yfit, 'r-', alpha=0.5, label='linear')
-        ax2.plot(imagecoordnum, poly_yfit, 'b-', alpha=0.5,
-                 label='polyorder %s' % xpolyorder)
-        ax2.set_xlabel('image coord number')
-        ax2.set_ylabel('y medians, linear fit, and poly fit')
+            ax2.plot(imagecoordnum, medy, 'k-')
+            ax2.plot(imagecoordnum, lin_yfit, 'r-', alpha=0.5, label='linear')
+            ax2.plot(imagecoordnum, poly_yfit, 'b-', alpha=0.5,
+                     label='polyorder %s' % xpolyorder)
+            ax2.set_xlabel('image coord number')
+            ax2.set_ylabel('y medians, linear fit, and poly fit')
 
-        savename = '%s-warp-check.png' % clean_fname(frame)
+            savename = '%s-warp-check.png' % clean_fname(frame)
 
-        fig.savefig(savename, bbox_inches='tight', dpi=100)
-        plt.close('all')
+            fig.savefig(savename, bbox_inches='tight', dpi=100)
+            plt.close('all')
 
-        LOGINFO('Wrote frame-warp diagnostic plot for %s to %s' %
-                (frame, savename))
+            LOGINFO('Wrote frame-warp diagnostic plot for %s to %s' %
+                    (frame, savename))
 
-        # add the diagnostic plot to the warpinfo dict
-        warpinfo['plot'] = os.path.abspath(savename)
+            # add the diagnostic plot to the warpinfo dict
+            warpinfo['plot'] = os.path.abspath(savename)
+
+        except Exception:
+            LOGEXCEPTION("Could not make a warp-check plot.")
 
     return warpinfo
 

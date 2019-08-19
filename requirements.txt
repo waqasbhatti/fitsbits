@@ -1,7 +1,6 @@
 numpy>=1.14
 scipy>=0.17.0
 astropy>=2.0
-matplotlib>=2.0
 Pillow>=5.2.0
 filelock>=3.0.10
 tenacity>=5.0.4
