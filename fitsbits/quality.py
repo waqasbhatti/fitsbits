@@ -248,7 +248,8 @@ def check_frame_badwarp(
             warpinfo['plot'] = os.path.abspath(savename)
 
         except Exception:
-            LOGEXCEPTION("Could not make a warp-check plot.")
+            LOGEXCEPTION("Could not make a warp-check plot. "
+                         "Is matplotlib installed?")
 
     return warpinfo
 

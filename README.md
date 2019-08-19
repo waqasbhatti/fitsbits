@@ -10,7 +10,7 @@ $ pip install fitsbits
 
 See the [installation instructions](#installation) below for details.
 
-This package requires Python >= 3.5.
+This package requires Python >= 3.6.
 
 # Contents
 
@@ -27,7 +27,7 @@ This package requires Python >= 3.5.
 - [**files.py**](https://github.com/waqasbhatti/fitsbits/blob/master/fitsbits/files.py):
   contains functions to work on collections of FITS files.
 
-- [**fits2export.py**](https://github.com/waqasbhatti/fitsbits/blob/master/fitsbits/fits2jpeg.py):
+- [**fits2export.py**](https://github.com/waqasbhatti/fitsbits/blob/master/fitsbits/fits2export.py):
   command-line utility available as `fitsbits-export` when this package is
   installed; exports a FITS image to a full JPEG or PNG, stamp PNG, or
   JPEGs/PNGs of specified regions (RA/Dec or x/y coordinate boxes).
@@ -63,7 +63,6 @@ This package requires the following other packages:
 - numpy
 - scipy
 - astropy
-- matplotlib
 - Pillow
 - filelock
 - tenacity
