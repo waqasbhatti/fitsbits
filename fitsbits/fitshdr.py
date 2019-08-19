@@ -34,7 +34,7 @@ optional arguments:
 #############
 
 import logging
-from pipetrex import log_sub, log_fmt, log_date_fmt
+from fitsbits import log_sub, log_fmt, log_date_fmt
 
 DEBUG = False
 if DEBUG:

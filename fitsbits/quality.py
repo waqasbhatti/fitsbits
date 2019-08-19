@@ -12,7 +12,7 @@ environment, image background levels, etc.
 #############
 
 import logging
-from pipetrex import log_sub, log_fmt, log_date_fmt
+from fitsbits import log_sub, log_fmt, log_date_fmt
 
 DEBUG = False
 if DEBUG:
@@ -39,7 +39,6 @@ LOGEXCEPTION = LOGGER.exception
 #############
 
 import os.path
-import gzip
 import pickle
 import sys
 
@@ -61,7 +60,7 @@ from .operations import (
     compressed_fits_ext,
     trim_image
 )
-from ..utils.extractors import clean_fname
+from .extractors import clean_fname
 
 NCPUS = mp.cpu_count()
 
@@ -339,14 +338,6 @@ def frame_source_info(
         trim_frame=True,
         trim_headerkeys=('TRIMSEC','DATASEC','TRIMSEC0'),
         calibrated_imagetype_headerkey='calibratedobject',
-        fistar=None,
-        fistar_cols=(3,10,11),
-        fistar_colnames=('background','fwhm','ellip'),
-        fiphot=None,
-        fiphot_col_mag=8,
-        fiphot_col_err=9,
-        fiphot_col_statusflag=10,
-        fiphot_good_statusflag='G',
         fits_ext=None,
         fits_racenter_key='RA',
         fits_racenter_unit='hr',
@@ -442,14 +433,6 @@ def frame_source_info(
     - the median background value of the frame in tiles over the frame
     - the MAD of the tiled background across the frame
 
-    - median of all of the columns specified in fistar_cols
-    - MAD of all of the columns specified in fistar_cols
-    - IQR of all of the columns specified in fistar_cols
-
-    - median, MAD, IQR of the fiphot_col_mag, and fiphot_col_err
-    - number of objects in the fiphot with a good status flag
-    - ratio of good objects to total number of objects in the fiphot
-
     Parameters
     ----------
 
@@ -475,42 +458,6 @@ def frame_source_info(
         This gives the IMAGETYP FITS header key value associated with the
         calibrated image. NOTE: PIPE-TrEx will use IMAGETYPE =
         'calibratedobject' for any calibrated object image that it produces.
-
-    fistar : str
-        The name of the associated .fistar file to process. If this is None, the
-        fistar info will not be processed.
-
-    fistar_cols : tuple or list, default: (3,10,11)
-        Sets the zero-indexed columns to extract from the fistar file that will
-        have statistics run on them to find the median, MAD and IQR
-        levels. Useful for selecting frames and quality control.
-
-    fistar_colnames : tuple or list, default: ('background', 'fwhm', 'ellip')
-        Sets the names of the columns to extract. By default, we extract the
-        background for each extracted source, the FWHM and the ellipticity.
-
-    fiphot : str
-        The name of the associated .fiphot file to process. If this is None, the
-        fiphot info will not be processed.
-
-    fiphot_col_mag : int, default: 8
-        Sets the zero-indexed column number of the magnitude values to extract
-        from the fiphot file. This will have statistics run on it to find its
-        median, MAD, and IQR.
-
-    fiphot_col_err : int, default: 9
-        Sets the zero-indexed column number of the error values to extract from
-        the fiphot file. This will have statistics run on it to find its median,
-        MAD, and IQR.
-
-    fiphot_col_statusflag : int, default: 10
-        Sets the zero-indexed column number of the photometry status flag
-        associated with each measurement. The absolute number of objects with
-        good flags and the ratio to the number of total objects will be
-        extracted.
-
-    fiphot_good_statusflag : str, default: 'G'
-        Sets the value of the good flag to look for.
 
     fits_ext : int
         Sets the extension of the FITS file to process. If None, will choose the
@@ -569,8 +516,7 @@ def frame_source_info(
 
     dict
         Returns a dict with all of the values as key:val pairs and paths to the
-        FITS, fistar and fiphot files. This can be used to insert stuff into a
-        database easily.
+        FITS. This can be used to insert stuff into a database easily.
 
     '''
 
@@ -702,183 +648,10 @@ def frame_source_info(
     fits_info['center_ra'] = center_ra
     fits_info['center_decl'] = center_decl
 
-    #
-    # 3. now we process the accompanying photometric info
-    #
-
-    #
-    # process the fistar if requested
-    #
-    if fistar is not None:
-
-        try:
-
-            # unzip the fistar if it ends with .gz
-            if fistar.endswith('.gz'):
-                fistarfd = gzip.open(fistar,'rb')
-            else:
-                fistarfd = open(fistar,'rb')
-
-            fistar_dtype = ('f8,'*len(fistar_colnames)).strip(',')
-
-            # read the fistar
-            fistar_info = np.genfromtxt(
-                fistarfd,
-                usecols=fistar_cols,
-                names=fistar_colnames,
-                dtype=fistar_dtype,
-                comments='#'
-            )
-
-            # get the moments
-            for col in fistar_colnames:
-
-                fits_info['sources_%s_median' % col] = np.nanmedian(
-                    fistar_info[col]
-                )
-                fits_info['sources_%s_mad' % col] = (
-                    np.nanmedian(
-                        np.abs(fistar_info[col] -
-                               np.nanmedian(fistar_info[col]))
-                    )
-                )
-                percentiles = np.nanpercentile(
-                    fistar_info[col],
-                    (5,25,75,95)
-                )
-                fits_info['sources_%s_iqr' % col] = (
-                    percentiles[2] - percentiles[1]
-                )
-                fits_info['sources_%s_p95' % col] = percentiles[-1]
-                fits_info['sources_%s_p05' % col] = percentiles[0]
-
-        except Exception:
-
-            for col in fistar_colnames:
-                fits_info['sources_%s_median' % col] = np.nan
-                fits_info['sources_%s_mad' % col] = np.nan
-                fits_info['sources_%s_iqr' % col] = np.nan
-                fits_info['sources_%s_p95' % col] = np.nan
-                fits_info['sources_%s_p05' % col] = np.nan
-
-    # if fistar is not provided (e.g. we're working on a calibration frame),
-    # then don't process it
-    else:
-
-        for col in fistar_colnames:
-            fits_info['sources_%s_median' % col] = np.nan
-            fits_info['sources_%s_mad' % col] = np.nan
-            fits_info['sources_%s_iqr' % col] = np.nan
-            fits_info['sources_%s_p95' % col] = np.nan
-            fits_info['sources_%s_p05' % col] = np.nan
-
-    #
-    # process the fiphot if requested
-    #
-    if fiphot is not None:
-
-        try:
-
-            # unzip the fiphot if it ends with .gz
-            if fiphot.endswith('.gz'):
-                fiphotfd = gzip.open(fiphot,'rb')
-            else:
-                fiphotfd = open(fiphot,'rb')
-
-            # read the fiphot
-            fiphot_info = np.genfromtxt(
-                fiphotfd,
-                usecols=(fiphot_col_mag, fiphot_col_err, fiphot_col_statusflag),
-                names=('mag','err','flag'),
-                dtype='f8,f8,U20',
-                comments='#'
-            )
-
-            fits_info['photometry_mag_median'] = np.nanmedian(
-                fiphot_info['mag']
-            )
-            fits_info['photometry_mag_mad'] = (
-                np.nanmedian(
-                    np.abs(fiphot_info['mag'] -
-                           np.nanmedian(fiphot_info['mag']))
-                )
-            )
-            percentiles = np.nanpercentile(
-                fiphot_info['mag'],
-                (5,25,75,95)
-            )
-            fits_info['photometry_mag_iqr'] = percentiles[2] - percentiles[1]
-            fits_info['photometry_mag_p95'] = percentiles[-1]
-            fits_info['photometry_mag_p05'] = percentiles[0]
-
-            fits_info['photometry_err_median'] = np.nanmedian(
-                fiphot_info['err']
-            )
-            fits_info['photometry_err_mad'] = (
-                np.nanmedian(
-                    np.abs(fiphot_info['err'] -
-                           np.nanmedian(fiphot_info['err']))
-                )
-            )
-            percentiles = np.nanpercentile(
-                fiphot_info['err'],
-                (5,25,75,95)
-            )
-            fits_info['photometry_err_iqr'] = percentiles[2] - percentiles[1]
-            fits_info['photometry_err_p95'] = percentiles[-1]
-            fits_info['photometry_err_p05'] = percentiles[0]
-
-            fits_info['photometry_ngood'] = (
-                fiphot_info['flag'][
-                    fiphot_info['flag'] == fiphot_good_statusflag
-                ]
-            ).size
-            fits_info['photometry_ngoodfrac'] = (
-                fits_info['photometry_ngood'] / fiphot_info['flag'].size
-            )
-
-        except Exception:
-
-            fits_info['photometry_mag_median'] = np.nan
-            fits_info['photometry_mag_mad'] = np.nan
-            fits_info['photometry_mag_iqr'] = np.nan
-            fits_info['photometry_mag_p95'] = np.nan
-            fits_info['photometry_mag_p05'] = np.nan
-
-            fits_info['photometry_err_median'] = np.nan
-            fits_info['photometry_err_mad'] = np.nan
-            fits_info['photometry_err_iqr'] = np.nan
-            fits_info['photometry_err_p95'] = np.nan
-            fits_info['photometry_err_p05'] = np.nan
-
-            fits_info['photometry_ngood'] = 0
-            fits_info['photometry_goodfrac'] = 0.0
-
-    # if fiphot is not provided (e.g. we're working on a calibration frame),
-    # then don't process it
-    else:
-
-        fits_info['photometry_mag_median'] = np.nan
-        fits_info['photometry_mag_mad'] = np.nan
-        fits_info['photometry_mag_iqr'] = np.nan
-        fits_info['photometry_mag_p95'] = np.nan
-        fits_info['photometry_mag_p05'] = np.nan
-
-        fits_info['photometry_err_median'] = np.nan
-        fits_info['photometry_err_mad'] = np.nan
-        fits_info['photometry_err_iqr'] = np.nan
-        fits_info['photometry_err_p95'] = np.nan
-        fits_info['photometry_err_p05'] = np.nan
-
-        fits_info['photometry_ngood'] = 0
-        fits_info['photometry_goodfrac'] = 0.0
-
     # write the kwargs to the output dict
     fits_info['kwargs'] = {
         'fits':(os.path.abspath(fits)
                 if isinstance(fits, str) else 'from ndarray'),
-        'fistar':os.path.abspath(fistar) if fistar else None,
-        'fiphot':os.path.abspath(fiphot) if fiphot else None,
         'fits_ext':fits_ext,
         'fits_racenter_key':fits_racenter_key,
         'fits_racenter_unit':fits_racenter_unit,
@@ -888,12 +661,6 @@ def frame_source_info(
         'fits_extra_keys':fits_extra_keys,
         'fits_background_mediandiffbelow':fits_background_mediandiffbelow,
         'fits_background_tilesize':fits_background_tilesize,
-        'fistar_cols':fistar_cols,
-        'fistar_colnames':fistar_colnames,
-        'fiphot_col_mag':fiphot_col_mag,
-        'fiphot_col_err':fiphot_col_err,
-        'fiphot_col_statusflag':fiphot_col_statusflag,
-        'fiphot_good_statusflag':fiphot_good_statusflag,
     }
 
     if extra_info_dict is not None and isinstance(extra_info_dict, dict):

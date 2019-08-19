@@ -10,7 +10,7 @@
 #############
 
 import logging
-from pipetrex import log_sub, log_fmt, log_date_fmt
+from fitsbits import log_sub, log_fmt, log_date_fmt
 
 DEBUG = False
 if DEBUG:
@@ -37,6 +37,7 @@ LOGEXCEPTION = LOGGER.exception
 #############
 
 import os.path
+import subprocess
 
 import multiprocessing
 import sys
@@ -56,7 +57,7 @@ from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
 
-from ..utils.extractors import clean_fname
+from .extractors import clean_fname
 from . import operations
 
 from astropy import wcs
@@ -1098,8 +1099,8 @@ def make_frame_movie(imgdir,
                                 crf=crf,
                                 preset=preset)
 
-    returncode = os.system(cmdtorun)
-    LOGINFO('ffmpeg done. Return code was %s' % returncode)
+    proc = subprocess.run(cmdtorun, shell=True)
+    LOGINFO('ffmpeg done. Return code was %s' % proc.returncode)
 
     # check if we succeeded in making the output file
     if os.path.exists(outfile):

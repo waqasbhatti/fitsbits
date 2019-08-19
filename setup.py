@@ -91,7 +91,7 @@ setup(
     tests_require=['pytest',],
     entry_points={
         'console_scripts':[
-            'fitshdr=fitsbits.fitshdr:main',
+            'fitbits-header=fitsbits.fitshdr:main',
         ],
     },
     include_package_data=True,

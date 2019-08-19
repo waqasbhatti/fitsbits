@@ -11,7 +11,7 @@ files.
 #############
 
 import logging
-from pipetrex import log_sub, log_fmt, log_date_fmt
+from fitsbits import log_sub, log_fmt, log_date_fmt
 
 DEBUG = False
 if DEBUG:
@@ -56,10 +56,9 @@ from sklearn.cluster import DBSCAN
 
 from astrobase.coordutils import hms_str_to_decimal, dms_str_to_decimal
 
-from ..utils.extractors import extract_frame_targetfield
-from ..utils.modtools import object_from_string
-from ..utils.compression import safe_compress, safe_uncompress
-from ..drivers.oprun import with_history
+from .extractors import extract_frame_targetfield
+from .modtools import object_from_string
+from .compression import safe_compress, safe_uncompress
 
 from . import operations
 
@@ -1108,54 +1107,6 @@ def group_frames_by_pointing(
         pickle.dump(groups, outfd, pickle.HIGHEST_PROTOCOL)
 
     return outfile
-
-
-def group_frames_by_pointing_with_history(
-        historydb_url,
-        fits_list,
-        pointing_outfile,
-        max_radius_deg=7.5,
-        min_fits_per_group=10,
-        wcs_list=None,
-        center_ra_key='CRVAL1',
-        center_ra_unit='deg',
-        center_decl_key='CRVAL2',
-        center_decl_unit='deg',
-        extract_targetfields=True,
-        targetfield_extractor=extract_frame_targetfield,
-        nworkers=NCPUS,
-        overwrite=False,
-        run_options=None,
-):
-    '''
-    This groups the FITS images in the input list by their center coordinates.
-
-    This version is history-enabled.
-
-    '''
-
-    return with_history(
-        historydb_url,
-        'group by pointing',
-        pointing_outfile,
-        overwrite,
-        ['outfile_pointing_info'],
-        group_frames_by_pointing,
-        fits_list,
-        outfile=pointing_outfile,
-        max_radius_deg=max_radius_deg,
-        min_fits_per_group=min_fits_per_group,
-        wcs_list=wcs_list,
-        center_ra_key=center_ra_key,
-        center_ra_unit=center_ra_unit,
-        center_decl_key=center_decl_key,
-        center_decl_unit=center_decl_unit,
-        extract_targetfields=extract_targetfields,
-        targetfield_extractor=targetfield_extractor,
-        nworkers=NCPUS,
-        return_dict=False,
-        run_options=run_options
-    )
 
 
 def filter_frames_by_headerkeys(fits_list,

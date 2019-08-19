@@ -11,7 +11,7 @@ writing, updating headers, etc.).
 #############
 
 import logging
-from pipetrex import log_sub, log_fmt, log_date_fmt
+from fitsbits import log_sub, log_fmt, log_date_fmt
 
 DEBUG = False
 if DEBUG:
@@ -45,13 +45,12 @@ import csv
 import re
 
 from scipy.interpolate import UnivariateSpline
-from scipy.interpolate import splrep, splev
 
 from astropy.io import fits as pyfits
 from astropy.io.fits import Card
 from astropy.visualization import ZScaleInterval
 
-from pipetrex import __gitrev__
+from fitsbits import __gitrev__
 
 
 ########################
@@ -255,15 +254,15 @@ def new_hdulist_with_updated_header(newdata,
     newhdulist = pyfits.HDUList([primhdu])
 
     # add the date when this was processed
-    newhdulist[0].header['ptprocdt'] = (
+    newhdulist[0].header['procdt'] = (
         datetime.utcnow().isoformat(),
-        'last processed at UTC'
+        'last processed at UTC datetime'
     )
 
     # add the gitrev if available
-    newhdulist[0].header['pipetrex'] = (
+    newhdulist[0].header['fitsbits'] = (
         __gitrev__,
-        'PIPE-TrEx git revision'
+        'fitsbits git revision'
     )
 
     # add any extra information provided
@@ -579,90 +578,6 @@ def bias_overscan_correction(fits_img,
 
         LOGEXCEPTION("could not fit spline to BIASSEC, can't continue")
         raise
-
-
-def _fitspline(x,y,iteration=5):
-    '''
-    This iteratively fits a spline.
-
-    '''
-
-    tck = splrep(x,y,np.ones(len(x)))
-    model = splev(x,tck)
-    if (iteration > 1):
-        i = 1
-        while(i < iteration):
-            sigma = np.nanstd(model-y)
-            index = abs(model-y) < 3.0*sigma
-            try:
-                tcknew = splrep(x[index],y[index], np.ones(len(x[index]))*sigma)
-            except TypeError:
-                return np.nan
-            model = splev(x,tcknew)
-            i += 1
-    return model
-
-
-def bias_overscan_correction_hatpi(
-        data,
-        header,
-        biassec_keyword='BIASSEC',
-        custom_biassec='[51:2098,2065:2264]',
-        inplace=True,
-):
-    '''This does an overscan correction for the input FITS file infile.
-
-    Tries to get the overcan bias section from the FITS header if possible. If
-    not, falls back to default_biassec (set for FLI ML230 2K x 2K HATPI CCDs).
-
-    This is the special version where we have a two-channel CCD so BIASSEC
-    actually refers to two separate overscan sections, one for each CCD
-    channel. These must be fit separately.
-
-    '''
-
-    if biassec_keyword in header:
-        biassec = header[biassec_keyword]
-    else:
-        biassec = custom_biassec
-
-    # parse the bias section
-    biassec = biassec.strip('[]')
-    xslice, yslice = biassec.split(',')
-    xslicelo, xslicehi = (int(x) for x in xslice.split(':'))
-    yslicelo, yslicehi = (int(y) for y in yslice.split(':'))
-
-    # get medians of the biassec rows
-    # NOTE: numpy convention is y,x and we use FITS pixnum - 1 since they start
-    # from 1 and numpy starts at 0
-    medians = np.median(data[yslicelo-1:yslicehi,
-                             xslicelo-1:xslicehi],
-                        axis=0)
-
-    # this is done because we have two readout channels for the FLI ML230 HATPI
-    # chip. Each has its own BIASSEC overscan correction, so we fit both
-    # separately, then combine them to subtract from the image
-    mediansa = medians[:int(medians.size/2)]
-    mediansb = medians[int(medians.size/2):]
-
-    rows = np.arange(int(medians.size/2))
-
-    spa = _fitspline(rows, mediansa)
-    spb = _fitspline(rows, mediansb)
-
-    if isinstance(spa, float) or isinstance(spb, float):
-
-        if(np.isnan(spa) or np.isnan(spb)):
-
-            LOGERROR('failed to do overscan correction')
-            raise TypeError('TypeError in fitspline encounter')
-
-    newmedian = np.array(list(spa)+list(spb))
-
-    # subtract the fit overscan median model from the image data
-    data[:,xslicelo-1:xslicehi] -= newmedian
-
-    return data
 
 
 def mask_image(fits_img,

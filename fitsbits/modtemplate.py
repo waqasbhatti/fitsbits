@@ -1,8 +1,6 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''This is a script to convert a directory of FITS files into a movie using
-`ffmpeg`.
+'''
 
 '''
 
