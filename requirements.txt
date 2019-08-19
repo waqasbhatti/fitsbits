@@ -4,3 +4,4 @@ astropy>=2.0
 Pillow>=5.2.0
 filelock>=3.0.10
 tenacity>=5.0.4
+scikit-learn>=0.20

@@ -1,3 +1,10 @@
+# v0.1.3
+
+## Fixes
+
+- Added missing scikit-learn requirement for `files.group_frames_by_pointing`.
+
+
 # v0.1.2
 
 ## Changes
