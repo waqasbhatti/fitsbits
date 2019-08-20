@@ -1,3 +1,10 @@
+# v0.1.4
+
+## Changes
+
+- Package description is now more descriptive.
+
+
 # v0.1.3
 
 ## Fixes
