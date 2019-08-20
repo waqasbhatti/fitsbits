@@ -67,7 +67,9 @@ setup(
     name='fitsbits',
     version=__version__,
     cmdclass=cmdclass,
-    description=( 'Useful tools for FITS files.'),
+    description=("Utilities for FITS files: safe (de)compression, "
+                 "exporting to images/movies, parallelized ops on "
+                 "collections, and QA"),
     long_description=readme(),
     long_description_content_type="text/markdown",
     classifiers=[
