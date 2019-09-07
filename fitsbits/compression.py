@@ -328,11 +328,11 @@ def with_safe_compression(
 
     infile_args : list of bool
         This indicates which of the args of the function are to be decompressed
-        automatically and then recompress after the wrapped function finishes.
+        automatically and then recompressed after the wrapped function finishes.
 
     infile_kwargs : list of str
         This indicates which of the kwargs of the function are to be
-        decompressed automatically and then recompress after the wrapped
+        decompressed automatically and then recompressed after the wrapped
         function finishes.
 
     outfile_compression : tuple of str
@@ -419,13 +419,13 @@ def with_safe_compression(
                     )
                     os.close(in_tempfd)
 
-                    file_locks[f] = {'lockfile':lock_file,
-                                     'lock':flock,
-                                     'tempfd':in_tempfd,
-                                     'tempfile':in_tempfile}
+                    file_locks[lf] = {'lockfile':lock_file,
+                                      'lock':flock,
+                                      'tempfd':in_tempfd,
+                                      'tempfile':in_tempfile}
 
                     # copy this infile to the temporary file
-                    shutil.copy(f, in_tempfile)
+                    shutil.copy(lf, in_tempfile)
 
                     # generate the name of the uncompressed tempfile
                     uncompressed_tempfd, uncompressed_tempfile = (
@@ -441,11 +441,11 @@ def with_safe_compression(
                         'tempfile':uncompressed_tempfile
                     }
 
-                    if f.endswith('.gz'):
+                    if lf.endswith('.gz'):
                         cmd = 'gunzip -c %s > %s' % (in_tempfile,
                                                      uncompressed_tempfile)
                         decomp = True
-                    elif f.endswith('.fz'):
+                    elif lf.endswith('.fz'):
                         cmd = 'funpack -C -S %s > %s' % (in_tempfile,
                                                          uncompressed_tempfile)
                         decomp = True
